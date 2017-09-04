@@ -1,0 +1,23 @@
+{
+	"name": "ddvphp/ddv-auth-other-login",
+	"description": "ddv-auth-other-login php library",
+	"version": "0.0.1",
+	"require": {
+		"php": ">=5.3",
+		"ddvphp/alipay": "0.0.*"
+	},
+	"require-dev": {
+	},
+	"autoload": {
+		"psr-4": {
+			"DdvPhp\\": "src/"
+		}
+	},
+	"license": "LGP-2.1",
+	"authors": [
+		{
+			"name": "yuchonghua",
+			"email": "yuchonghua@163.com"
+		}
+	]
+}
