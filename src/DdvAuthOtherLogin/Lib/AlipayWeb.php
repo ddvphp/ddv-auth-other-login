@@ -11,7 +11,10 @@ namespace DdvPhp\DdvAuthOtherLogin\Lib;
 
 class AlipayWeb
 {
-    public static function getLoginInfo(){
+    public static function getLoginInfo($params, $config){
+        if ($params['state']){
+            
+        }
         return ['3333'];
 
     }
