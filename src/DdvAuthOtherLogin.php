@@ -11,7 +11,13 @@ use DdvPhp\DdvAuthOtherLogin\Exception;
  */
 class DdvAuthOtherLogin
 {
+    private static $configKeys = array(
+        'authUri',
+        'isAutoTryBaseLogin'
+    );
     private static $config = array(
+        // 是否需要尝试静默授权
+        'isAutoTryBaseLogin'=>true,
         'wechat_mp'=>array(
 
         ),
@@ -33,12 +39,17 @@ class DdvAuthOtherLogin
      * @param array $params [请求参数]
      * @return array $r [返回配置参数]
      */
-    public static function getLoginInfo($params = array()){
+    public static function getLoginInfo($params = array(), $userInfoCallback = null, $baseInfoCallback = null){
         if (empty($params)){
             $params = self::getParams();
         }
+        $config = array();
+        foreach (self::$configKeys as $key){
+            $config[$key] = self::$config[$key];
+        }
+        $config = array_merge($config, self::$config[$params['type']]);
         // 判断是否支持该配置
-        return self::isHasType(empty($params['type'])?'':$params['type'])::getLoginInfo($params, self::$config);
+        return self::isHasType(empty($params['type'])?'':$params['type'])::getLoginInfo($params, $config, $userInfoCallback, $baseInfoCallback);
     }
     /**
      * 设置配置文件
@@ -67,7 +78,7 @@ class DdvAuthOtherLogin
         // 转换类型
         $type = self::type2type($type);
         // 判断是否支持该配置
-        self::isHasType($type);
+        self::isConfigKeyReturnBoolean($type) || self::isHasType($type);
         // 设置配置信息
         self::$config[$type] = $config;
         // 返回类名
@@ -87,13 +98,21 @@ class DdvAuthOtherLogin
         }
         return $params;
     }
+    public static function isConfigKey($key = null){
+        if (!self::isConfigKeyReturnBoolean($key)){
+            throw new Exception('没有找到该配置key:['.$key.']', 'NOT_FIND_CONFIG_KEY');
+        }
+    }
+    public static function isConfigKeyReturnBoolean($key = null){
+        return in_array($key, self::$configKeys);
+    }
     /**
      * 设置配置文件
      * @param string $type [参数类型]
      */
     public static function isHasType($type = null){
         if (empty($type)){
-            throw new Exception('没有找到该类型', 'NOT_FIND_TYPE');
+            throw new Exception('没有找到该类型['.$type.']', 'NOT_FIND_TYPE');
         }
         $className = '\\DdvPhp\\DdvAuthOtherLogin\\Lib\\'.ucfirst(preg_replace_callback(
             '(\_\w)',
@@ -101,9 +120,9 @@ class DdvAuthOtherLogin
                 return strtoupper(substr($matches[0], 1));
             },
             (string)$type
-        ));;
+        ));
         if (!class_exists($className)) {
-            throw new Exception('没有找到该类型', 'NOT_FIND_TYPE');
+            throw new Exception('没有找到该类型['.$type.']', 'NOT_FIND_TYPE');
         }
         return $className;
     }
