@@ -114,8 +114,7 @@ class AlipayWeb
             'alipayUserId'=>empty($tokenArray['alipay_user_id'])?(empty($tokenArray['alipayUserId'])?'':$tokenArray['alipayUserId']):$tokenArray['alipay_user_id'],
             'userId'=>empty($tokenArray['user_id'])?(empty($tokenArray['userId'])?'':$tokenArray['userId']):$tokenArray['user_id'],
             'scope'=>&$scope,
-            'errorScope'=>&$errorScope,
-            'res'=>array()
+            'errorScope'=>&$errorScope
         );
 
         foreach ($scope as $scopet){
