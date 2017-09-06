@@ -132,8 +132,8 @@ class AlipayWeb
             $methodName = 'request'.ucfirst($scopet2);
             if (method_exists(self::class, $methodName)){
                 try{
-                    $resData['res'][$scopet] = call_user_func_array(array(self::class, $methodName),array($tokenStr, $config));
-                    $resData['res'][$scopet2] = &$resData['res'][$scopet];
+                    $resData['scope_'.$scopet] = call_user_func_array(array(self::class, $methodName),array($tokenStr, $config));
+                    $resData['scope'.ucfirst($scopet2)] = &$resData['scope_'.$scopet];
                 }catch (Exception $e){
                     $errorScope[] = $scopet;
                 }
