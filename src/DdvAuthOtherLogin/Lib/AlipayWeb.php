@@ -108,8 +108,10 @@ class AlipayWeb
             $res['redirectServer'] = true;
             return $res;
         }
-        $scope = explode(',', (empty($params['scope'])?'':$params['scope']));
-        $errorScope = explode(',', (empty($params['error_scope'])?'':$params['error_scope']));
+        $scope = empty($params['scope'])?'':$params['scope'];
+        $errorScope = empty($params['error_scope'])?'':$params['error_scope'];
+        $scope = empty($scope)?array():explode(',', $scope);
+        $errorScope = empty($errorScope)?array():explode(',', $errorScope);
         $resData = array(
             'alipayUserId'=>empty($tokenArray['alipay_user_id'])?(empty($tokenArray['alipayUserId'])?'':$tokenArray['alipayUserId']):$tokenArray['alipay_user_id'],
             'userId'=>empty($tokenArray['user_id'])?(empty($tokenArray['userId'])?'':$tokenArray['userId']):$tokenArray['user_id'],
