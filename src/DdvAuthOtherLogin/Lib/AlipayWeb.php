@@ -15,18 +15,17 @@ class AlipayWeb
 {
     public static $SCOPE_AUTH_BASE = 'auth_base';
     public static $OPEN_AUTH_URL = 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?';
-    // public static 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&scope=SCOPE&redirect_uri=ENCODED_URL'
-    public static function getLoginInfo($params, $config, $userInfoCallback = null, $baseInfoCallback = null){
+    public static function authLogin($params, $config, $userInfoCallback = null, $baseInfoCallback = null){
         // 是否需要尝试静默授权
         $isAutoTryBaseLogin = empty($params['nbauth']) && (boolean)$config['isAutoTryBaseLogin'] && ($baseInfoCallback instanceof Closure);
         if (empty($params['app_id']) || empty($params['auth_code']) || empty($params['scope'])){
             // 如果这些数据有一个是空的，就代表需要进入授权url生成模式，并且考虑使用静默授权
-            return self::getLoginInfoAsUrl($params, $config, $isAutoTryBaseLogin);
+            return self::authLoginAsUrl($params, $config, $isAutoTryBaseLogin);
         }else{
-            return $isAutoTryBaseLogin ? self::getLoginInfoAsBase($params, $config, $baseInfoCallback) : self::getLoginInfoAsUserInfo($params, $config, $userInfoCallback);
+            return $isAutoTryBaseLogin ? self::authLoginAsBase($params, $config, $baseInfoCallback) : self::authLoginAsUserInfo($params, $config, $userInfoCallback);
         }
     }
-    protected static function getLoginInfoAsUrl($params, $config, $isAutoTryBaseLogin = false){
+    protected static function authLoginAsUrl($params, $config, $isAutoTryBaseLogin = false){
         $authUri = $config['authUri'];
         $redirectUri = '';
         $query = array(
@@ -64,13 +63,13 @@ class AlipayWeb
             'url'=>self::$OPEN_AUTH_URL . http_build_query($query)
         );
     }
-    protected static function getLoginInfoAsBase($params, $config, Closure $baseInfoCallback){
+    protected static function authLoginAsBase($params, $config, Closure $baseInfoCallback){
         try{
             $token = self::requestToken($params['auth_code'], $config);
             $tokenArray = self::tokenStdClassToArray($token);
         }catch (Exception $e){
             $params['nbauth'] = '1';
-            $res = self::getLoginInfoAsUrl($params, $config, false);
+            $res = self::authLoginAsUrl($params, $config, false);
             $res['redirectServer'] = true;
             return $res;
         }
@@ -81,7 +80,7 @@ class AlipayWeb
         $res = $baseInfoCallback($resData, $token);
         if ($res!==true){
             $params['nbauth'] = '1';
-            $res = self::getLoginInfoAsUrl($params, $config, false);
+            $res = self::authLoginAsUrl($params, $config, false);
             $res['redirectServer'] = true;
             return $res;
         }
@@ -89,7 +88,7 @@ class AlipayWeb
             'redirectServer' => false
         );
     }
-    protected static function getLoginInfoAsUserInfo($params, $config, $userInfoCallback = null){
+    protected static function authLoginAsUserInfo($params, $config, $userInfoCallback = null){
         // 调整地址
         $toUri = base64_decode(str_replace('_','/',(empty($params['touri'])?'':$params['touri'])));
         $tokenStr = '';
@@ -102,15 +101,15 @@ class AlipayWeb
             $tokenStr = $tokenArray['access_token'];
         }catch (Exception $e){
             $params['nbauth'] = '1';
-            $res = self::getLoginInfoAsUrl($params, $config, false);
+            $res = self::authLoginAsUrl($params, $config, false);
             $res['redirectServer'] = true;
             return $res;
         }
         $scope = explode(',', (empty($params['scope'])?'':$params['scope']));
         $errorScope = explode(',', (empty($params['error_scope'])?'':$params['error_scope']));
         $resData = array(
-            'alipayUserId'=>$tokenArray['alipay_user_id'],
-            'userId'=>$tokenArray['user_id'],
+            'alipayUserId'=>empty($tokenArray['alipay_user_id'])?(empty($tokenArray['alipayUserId'])?'':$tokenArray['alipayUserId']):$tokenArray['alipay_user_id'],
+            'userId'=>empty($tokenArray['user_id'])?(empty($tokenArray['userId'])?'':$tokenArray['userId']):$tokenArray['user_id'],
             'scope'=>&$scope,
             'errorScope'=>&$errorScope,
             'res'=>array()
@@ -140,7 +139,8 @@ class AlipayWeb
             }
         }
         $res = array(
-            'redirectServer' => false
+            'redirectServer' => false,
+            'isEnd' => true
         );
         if ($userInfoCallback instanceof Closure){
             $userInfoCallback($resData, $token);
@@ -166,16 +166,6 @@ class AlipayWeb
         }
         throw new Exception('获取授权信息失败', 'AUTH_USERINFO_FAIL');
     }
-    protected static function tokenStdClassToArray($stdClass){
-        if (is_object($stdClass)&&property_exists($stdClass, 'alipay_system_oauth_token_response')){
-            $r = array();
-            foreach ($stdClass->alipay_system_oauth_token_response as $key => $value){
-                $r[$key] = $value;
-            }
-            return $r;
-        }
-        throw new Exception('不是一个有效的token stdClass', 'NOT_TOKEN_STDCLASS');
-    }
     public static function requestToken($authCode, $config) {
         AopSdk::init();
         $AlipaySystemOauthTokenRequest = new \AlipaySystemOauthTokenRequest ();
@@ -185,5 +175,15 @@ class AlipayWeb
 
         $result = AopSdk::aopclientRequestExecute(AopSdk::getAopClient($config), $AlipaySystemOauthTokenRequest );
         return $result;
+    }
+    protected static function tokenStdClassToArray($stdClass){
+        if (is_object($stdClass)&&property_exists($stdClass, 'alipay_system_oauth_token_response')){
+            $r = array();
+            foreach ($stdClass->alipay_system_oauth_token_response as $key => $value){
+                $r[$key] = $value;
+            }
+            return $r;
+        }
+        throw new Exception('不是一个有效的token stdClass', 'NOT_TOKEN_STDCLASS');
     }
 }

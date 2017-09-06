@@ -15,6 +15,9 @@ class DdvAuthOtherLogin
         'authUri',
         'isAutoTryBaseLogin'
     );
+    private static $callback = array(
+
+    );
     private static $config = array(
         // 是否需要尝试静默授权
         'isAutoTryBaseLogin'=>true,
@@ -39,17 +42,41 @@ class DdvAuthOtherLogin
      * @param array $params [请求参数]
      * @return array $r [返回配置参数]
      */
-    public static function getLoginInfo($params = array(), $userInfoCallback = null, $baseInfoCallback = null){
+    public static function authLogin($params = array()){
         if (empty($params)){
             $params = self::getParams();
         }
+        $type = empty($params['type'])?'':$params['type'];
         $config = array();
         foreach (self::$configKeys as $key){
             $config[$key] = self::$config[$key];
         }
-        $config = array_merge($config, self::$config[$params['type']]);
+        $config = array_merge($config, self::$config[$type]);
+        if (empty(self::$callback)||empty(self::$callback[$type])){
+            throw new Exception('没有设置callback', 'NOT_SET_CALLBACK');
+        }
         // 判断是否支持该配置
-        return self::isHasType(empty($params['type'])?'':$params['type'])::getLoginInfo($params, $config, $userInfoCallback, $baseInfoCallback);
+        return self::isHasType($type)::authLogin(
+            $params,
+            $config,
+            $callback[$type]['userInfoCallback'],
+            $callback[$type]['baseInfoCallback']
+        );
+    }
+    /**
+     * 设置配置文件
+     * @param string $type [配置参数]
+     * @param array $config [配置参数]
+     * @return DdvAuthOtherLogin self [请求对象]
+     */
+    public static function setAuthCallBack($type, $config=array(), $userInfoCallback = null, $baseInfoCallback = null){
+        self::setConfig($config, $type);
+        $callback = &self::$callback;
+        if (empty($callback[$type])){
+            $callback[$type] = array();
+        }
+        $callback[$type]['userInfoCallback'] = $userInfoCallback;
+        $callback[$type]['baseInfoCallback'] = $baseInfoCallback;
     }
     /**
      * 设置配置文件
