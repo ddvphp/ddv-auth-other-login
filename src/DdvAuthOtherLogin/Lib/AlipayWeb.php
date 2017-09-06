@@ -67,6 +67,8 @@ class AlipayWeb
         );
     }
     protected static function authLoginAsBase($params, $config, Closure $baseInfoCallback){
+        // 调整地址
+        $redirectUri = empty($params['redirect_uri'])?'':$params['redirect_uri'];
         try{
             $token = self::requestToken($params['auth_code'], $config);
             $tokenArray = self::tokenStdClassToArray($token);
@@ -88,7 +90,9 @@ class AlipayWeb
             return $res;
         }
         return array(
-            'redirectServer' => false
+            'redirectServer' => true,
+            'url'=>$redirectUri,
+            'isEnd' => true
         );
     }
     protected static function authLoginAsUserInfo($params, $config, $userInfoCallback = null){
