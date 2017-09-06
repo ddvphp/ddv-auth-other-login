@@ -10,6 +10,7 @@ namespace DdvPhp\DdvAuthOtherLogin\Lib;
 use \Closure;
 use DdvPhp\Alipay\AopSdk;
 use DdvPhp\DdvAuthOtherLogin\Exception;
+use DdvPhp\DdvRestfulApi;
 
 class AlipayWeb
 {
@@ -36,10 +37,7 @@ class AlipayWeb
             'nbauth'=>empty($params['nbauth'])?'':$params['nbauth'],
             'getscope' => empty($params['getscope'])?(empty($params['scope'])?self::$SCOPE_AUTH_BASE:$params['scope']):$params['getscope']
         );
-        $redirectQuery['touri'] = empty($params['touri'])?'':$params['touri'];
-        if (empty($params['touri'])){
-            $redirectQuery['touri'] = empty($params['redirect_uri'])?'':str_replace('/','_',base64_encode($params['redirect_uri']));
-        }
+        $redirectQuery['redirect_uri'] = empty($params['redirect_uri'])?'':$params['redirect_uri'];
 
         // 是否静默模式
         if ($isAutoTryBaseLogin){
@@ -57,6 +55,11 @@ class AlipayWeb
             }
         }
         $query['redirect_uri'] = $authUri.http_build_query($redirectQuery);
+        if (!empty($config['isDdvRestfulApi'])){
+            // 取得接口单例
+            $apiobj = DdvRestfulApi::getInstance();
+            $query['redirect_uri'] = $apiobj->getSignUrlByUrl($query['redirect_uri'], true);
+        }
         // 对外跳转url
         return array(
             'redirectServer' => false,
@@ -90,7 +93,7 @@ class AlipayWeb
     }
     protected static function authLoginAsUserInfo($params, $config, $userInfoCallback = null){
         // 调整地址
-        $toUri = base64_decode(str_replace('_','/',(empty($params['touri'])?'':$params['touri'])));
+        $redirectUri = empty($params['redirect_uri'])?'':$params['redirect_uri'];
         $tokenStr = '';
         try{
             $token = self::requestToken($params['auth_code'], $config);
@@ -139,7 +142,8 @@ class AlipayWeb
             }
         }
         $res = array(
-            'redirectServer' => false,
+            'redirectServer' => true,
+            'url'=>$redirectUri,
             'isEnd' => true
         );
         if ($userInfoCallback instanceof Closure){

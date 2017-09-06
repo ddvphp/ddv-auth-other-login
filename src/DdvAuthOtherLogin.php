@@ -13,7 +13,8 @@ class DdvAuthOtherLogin
 {
     private static $configKeys = array(
         'authUri',
-        'isAutoTryBaseLogin'
+        'isAutoTryBaseLogin',
+        'isDdvRestfulApi'
     );
     private static $callback = array(
 
@@ -21,6 +22,8 @@ class DdvAuthOtherLogin
     private static $config = array(
         // 是否需要尝试静默授权
         'isAutoTryBaseLogin'=>true,
+        // 是否为ddvRestfulApi
+        'isDdvRestfulApi'=>true,
         'wechat_mp'=>array(
 
         ),
@@ -59,8 +62,8 @@ class DdvAuthOtherLogin
         return self::isHasType($type)::authLogin(
             $params,
             $config,
-            $callback[$type]['userInfoCallback'],
-            $callback[$type]['baseInfoCallback']
+            self::$callback[$type]['userInfoCallback'],
+            self::$callback[$type]['baseInfoCallback']
         );
     }
     /**
