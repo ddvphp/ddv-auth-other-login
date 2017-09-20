@@ -149,7 +149,7 @@ class WechatMp
         if (is_array($userInfo)){
             $resData = array_merge($resData, $userInfo);
         }
-        foreach ( explode(',', 'nickname country province city headimgurl') as $key){
+        foreach ( explode(' ', 'nickname country province city headimgurl') as $key){
             if (isset($resData['isAuthUserInfo'])&&$resData['isAuthUserInfo']===true){
                 break;
             }
