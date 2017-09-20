@@ -84,7 +84,7 @@ class WechatMp
 
         $resData = self::requestAuthUserinfo($tokenArray, $config);
 
-        $res = $baseInfoCallback($resData, $token);
+        $res = $baseInfoCallback($resData, $tokenArray);
 
 
         if ($res!==true){
@@ -128,7 +128,7 @@ class WechatMp
             'isEnd' => true
         );
         if ($userInfoCallback instanceof Closure){
-            $userInfoCallback($resData, $token);
+            $userInfoCallback($resData, $tokenArray);
         }else{
             $res['res'] = $resData;
         }
