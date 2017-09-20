@@ -89,7 +89,7 @@ class WechatMp
 
         if ($res!==true){
             if ($resData['isAuthUserInfo']){
-                return self::authLoginAsUserInfo($params, $config, $userInfoCallback, $resData);
+                return self::authLoginAsUserInfo($params, $config, $userInfoCallback, $tokenArray, $resData);
             }
             $params['nbauth'] = '1';
             $res = self::authLoginAsUrl($params, $config, false);
@@ -102,10 +102,10 @@ class WechatMp
             'isEnd' => true
         );
     }
-    protected static function authLoginAsUserInfo($params, $config, $userInfoCallback = null, $resData = null){
+    protected static function authLoginAsUserInfo($params, $config, $userInfoCallback = null, $tokenArray = null, $resData = null){
         // 调整地址
         $redirectUri = empty($params['redirect_uri'])?'':$params['redirect_uri'];
-        if (empty($resData)){
+        if (empty($tokenArray) || empty($resData)){
             try{
                 $tokenArray = self::requestToken($params['code'], $config);
                 if (empty($tokenArray['access_token'])){
