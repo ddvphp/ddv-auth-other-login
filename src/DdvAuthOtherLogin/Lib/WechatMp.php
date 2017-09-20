@@ -33,7 +33,7 @@ class WechatMp
         $redirectQuery = array(
             'type'=>$params['type'],
             'nbauth'=>empty($params['nbauth'])?'':$params['nbauth'],
-            'getscope' => empty($params['getscope'])?(empty($params['scope'])?self::$SNAPI_BASE:$params['scope']):$params['getscope']
+            'getscope' => empty($params['getscope'])?(empty($params['scope'])?self::$SNAPI_USERINFO:$params['scope']):$params['getscope']
         );
         $redirectQuery['redirect_uri'] = empty($params['redirect_uri'])?'':$params['redirect_uri'];
 
@@ -43,7 +43,7 @@ class WechatMp
             $scope = self::$SNAPI_BASE;
         }else{
             // 非静默模式
-            $scope = empty($params['getscope'])?(empty($params['scope'])?self::$SNAPI_BASE:$params['scope']):$params['getscope'];
+            $scope = empty($params['getscope'])?(empty($params['scope'])?self::$SNAPI_USERINFO:$params['scope']):$params['getscope'];
         }
         if (strpos($authUri,'?')===false){
             $authUri .= '?';
@@ -159,7 +159,7 @@ class WechatMp
             $userInfo = $weObj->getOauthUserinfo($resData['accessToken'], $resData['openid']);
             if (is_array($userInfo)){
                 $resData = array_merge($resData, $userInfo);
-                $userInfo['isAuthUserInfo'] = true;
+                $resData['isAuthUserInfo'] = true;
             }
         }
 
