@@ -41,6 +41,9 @@ class DdvAuthOtherLogin
         ),
         'qq_connect_web'=>array(
 
+        ),
+        'weibo_web'=>array(
+
         )
     );
     /**
@@ -54,7 +57,6 @@ class DdvAuthOtherLogin
         }
         $type = empty($params['type'])?'':$params['type'];
         if (!(isset(self::$config[$type])&&is_array(self::$config[$type]))){
-            var_dump(self::$config[$type],empty(self::$config[$type]),(!is_array(self::$config[$type])));
             throw new Exception('不支持该登录方式', 'NOT_SUPPORT_LOGIN_TYPE');
         }
         $config = array();
