@@ -7,7 +7,8 @@
 		"ddvphp/ddv-exception": "0.0.*",
 		"ddvphp/alipay": "0.0.*",
 		"ddvphp/wechat": "0.0.*",
-		"ddvphp/qq": "0.0.*"
+		"ddvphp/qq": "0.0.*",
+		"xiaosier/libweibo": "dev-master"
 	},
 	"require-dev": {
 	},
