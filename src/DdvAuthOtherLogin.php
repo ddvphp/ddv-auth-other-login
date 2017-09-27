@@ -38,6 +38,9 @@ class DdvAuthOtherLogin
         ),
         'alipay_app'=>array(
 
+        ),
+        'qq_connect_web'=>array(
+
         )
     );
     /**
@@ -50,6 +53,10 @@ class DdvAuthOtherLogin
             $params = self::getParams();
         }
         $type = empty($params['type'])?'':$params['type'];
+        if (!(isset(self::$config[$type])&&is_array(self::$config[$type]))){
+            var_dump(self::$config[$type],empty(self::$config[$type]),(!is_array(self::$config[$type])));
+            throw new Exception('不支持该登录方式', 'NOT_SUPPORT_LOGIN_TYPE');
+        }
         $config = array();
         foreach (self::$configKeys as $key){
             $config[$key] = self::$config[$key];
