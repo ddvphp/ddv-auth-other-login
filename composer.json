@@ -4,8 +4,10 @@
 	"version": "0.0.1",
 	"require": {
 		"php": ">=5.3",
+		"ddvphp/ddv-exception": "0.0.*",
 		"ddvphp/alipay": "0.0.*",
-		"ddvphp/wechat": "0.0.*"
+		"ddvphp/wechat": "0.0.*",
+		"ddvphp/qq": "0.0.*"
 	},
 	"require-dev": {
 	},

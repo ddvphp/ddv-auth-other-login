@@ -10,6 +10,7 @@ namespace DdvPhp\DdvAuthOtherLogin\Lib;
 use \Closure;
 use DdvPhp\Alipay\AopSdk;
 use DdvPhp\DdvAuthOtherLogin\Exception;
+use DdvPhp\DdvException;
 use DdvPhp\DdvRestfulApi;
 
 class AlipayWeb
@@ -72,7 +73,7 @@ class AlipayWeb
         try{
             $token = self::requestToken($params['auth_code'], $config);
             $tokenArray = self::tokenStdClassToArray($token);
-        }catch (Exception $e){
+        }catch (DdvException $e){
             $params['nbauth'] = '1';
             $res = self::authLoginAsUrl($params, $config, false);
             $res['redirectServer'] = true;
@@ -106,7 +107,7 @@ class AlipayWeb
                 throw new Exception('access token error', 'ACCESS_TOKEN_ERROR');
             }
             $tokenStr = $tokenArray['access_token'];
-        }catch (Exception $e){
+        }catch (DdvException $e){
             $params['nbauth'] = '1';
             $res = self::authLoginAsUrl($params, $config, false);
             $res['redirectServer'] = true;
@@ -140,7 +141,10 @@ class AlipayWeb
                     $resData['scope_'.$scopet] = call_user_func_array(array(self::class, $methodName),array($tokenStr, $config));
                     $resData['scope'.ucfirst($scopet2)] = &$resData['scope_'.$scopet];
                 }catch (Exception $e){
-                    $errorScope[] = $scopet;
+                    $errorScope[] = [
+                        'scope' => $scopet,
+                        'exception'=>$e
+                    ];
                 }
             }else{
                 throw new Exception($methodName.'不存在', 'REQUEST_METHOD_NOT_FIND');

@@ -9,6 +9,7 @@
 namespace DdvPhp\DdvAuthOtherLogin\Lib;
 use \Closure;
 use DdvPhp\DdvAuthOtherLogin\Exception;
+use DdvPhp\DdvException;
 use DdvPhp\DdvRestfulApi;
 use DdvPhp\Wechat;
 
@@ -75,7 +76,7 @@ class WechatMp
                 throw new Exception('access token error', 'ACCESS_TOKEN_ERROR');
             }
             $tokenStr = $tokenArray['access_token'];
-        }catch (Exception $e){
+        }catch (DdvException $e){
             $params['nbauth'] = '1';
             $res = self::authLoginAsUrl($params, $config, false);
             $res['redirectServer'] = true;
@@ -112,7 +113,7 @@ class WechatMp
                     throw new Exception('access token error', 'ACCESS_TOKEN_ERROR');
                 }
                 $tokenStr = $tokenArray['access_token'];
-            }catch (Exception $e){
+            }catch (DdvException $e){
                 $params['nbauth'] = '1';
                 $res = self::authLoginAsUrl($params, $config, false);
                 $res['redirectServer'] = true;
