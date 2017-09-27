@@ -8,7 +8,7 @@
 		"ddvphp/alipay": "0.0.*",
 		"ddvphp/wechat": "0.0.*",
 		"ddvphp/qq": "0.0.*",
-		"xiaosier/libweibo": "dev-master"
+		"ddvphp/weibo": "0.0.*"
 	},
 	"require-dev": {
 	},
