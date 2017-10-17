@@ -16,7 +16,7 @@ use DdvPhp\DdvException;
 class QqConnectWeb
 {
     public static $SCOPE = 'get_user_info';
-    public static function authLogin($params, $config, $userInfoCallback = null, $baseInfoCallback = null){
+    public static function authLogin($params, $config, $userInfoCallback = null){
         if (empty($params['code']) ){
             // 如果这些数据有一个是空的，就代表需要进入授权url生成模式，并且考虑使用静默授权
             return self::authLoginAsUrl($params, $config);
